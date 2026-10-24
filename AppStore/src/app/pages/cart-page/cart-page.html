@@ -1,0 +1,102 @@
+<div class="cart-page">
+
+    <div class="cart-page__top">
+        <a matButton="elevated" routerLink="/sales">
+            <mat-icon>arrow_back</mat-icon>
+            Continuar comprando
+        </a>
+    </div>
+
+    <div class="cart-layout">
+
+        <!-- Productos -->
+        <section class="cart-products">
+
+            <h1>Productos del carrito ({{ cartService.totalItems() }})</h1>
+
+            @if (cartService.items().length === 0) {
+            <div class="empty-cart">
+                <mat-icon>shopping_cart</mat-icon>
+                <h2>Tu carrito está vacío</h2>
+                <p>Agrega algunos productos para continuar.</p>
+                <a mat-flat-button routerLink="/sales">Continuar comprando</a>
+            </div>
+            } @else {
+            <div class="cart-items">
+                @for (item of cartService.items(); track item.productId) {
+                <mat-card class="cart-item">
+
+                    <img class="cart-item__image" [src]="item.image" [alt]="item.name">
+
+                    <div class="cart-item__info">
+                        <h2 class="cart-item__name">{{ item.name }}</h2>
+                        <p class="cart-item__price">S/ {{ item.price | number: '1.2-2' }}</p>
+
+                        <div class="cart-item__quantity">
+                            <button mat-icon-button type="button" [disabled]="item.quantity <= 1"
+                                (click)="decreaseQuantity(item.productId)">
+                                <mat-icon>remove</mat-icon>
+                            </button>
+                            <span class="quantity">{{ item.quantity }}</span>
+                            <button mat-icon-button type="button" [disabled]="item.quantity >= item.stock"
+                                (click)="increaseQuantity(item.productId)">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="cart-item__total">
+                        <span>S/ {{ item.price * item.quantity | number: '1.2-2' }}</span>
+                    </div>
+
+                    <div class="cart-item__delete">
+                        <button mat-icon-button type="button" color="warn" (click)="removeItem(item.productId)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+
+                </mat-card>
+                }
+            </div>
+            }
+
+        </section>
+
+        <!-- Resumen -->
+        <aside class="order-summary">
+            <mat-card>
+                <mat-card-header>
+                    <mat-card-title>Resumen de la orden</mat-card-title>
+                </mat-card-header>
+
+                <mat-card-content>
+
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <strong>S/ {{ subtotal() | number: '1.2-2' }}</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Impuestos (19%)</span>
+                        <strong>S/ {{ taxes() | number: '1.2-2' }}</strong>
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    <div class="summary-row summary-row--total">
+                        <span>Total</span>
+                        <strong>S/ {{ total() | number: '1.2-2' }}</strong>
+                    </div>
+
+                    <button mat-flat-button class="checkout-button" type="button"
+                        [disabled]="cartService.items().length === 0" (click)="finishPurchase()">
+                        <mat-icon>shopping_cart_checkout</mat-icon>
+                        Terminar compra
+                    </button>
+
+                </mat-card-content>
+            </mat-card>
+        </aside>
+
+    </div>
+</div>

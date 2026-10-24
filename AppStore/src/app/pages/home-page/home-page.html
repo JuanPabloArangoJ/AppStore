@@ -1,0 +1,60 @@
+<section class="home">
+
+    <app-theme-toggle class="theme-corner" />
+    <header class="welcome">
+        <h1>{{ greeting }}, {{ firstName() }}</h1>
+        <p>Bienvenido a GameStore. ¿Qué quieres hacer hoy?</p>
+
+        <div class="quick-links">
+            <a matButton="filled" routerLink="/sales">
+                <mat-icon>add_shopping_cart</mat-icon>
+                Nueva venta
+            </a>
+            <a matButton="elevated" routerLink="/cart">
+                <mat-icon>shopping_cart</mat-icon>
+                Carrito
+            </a>
+
+            @if (authService.isAdmin()) {
+            <a matButton="elevated" routerLink="/products">
+                <mat-icon>inventory_2</mat-icon>
+                Productos
+            </a>
+            <a matButton="elevated" routerLink="/sales-history">
+                <mat-icon>receipt_long</mat-icon>
+                Historial
+            </a>
+            }
+        </div>
+    </header>
+
+    <!-- Escaparate 3D -->
+    <div class="showcase">
+        <button matIconButton aria-label="Anterior" (click)="prev()">
+            <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <div class="stage">
+            <model-viewer class="viewer" [src]="current().file" [attr.alt]="current().name" camera-controls disable-zoom
+                camera-orbit="auto auto 130%" auto-rotate auto-rotate-delay="0" rotation-per-second="25deg"
+                shadow-intensity="1" shadow-softness="0.6" environment-image="neutral" exposure="1.1"
+                interaction-prompt="none">
+            </model-viewer>
+        </div>
+
+        <button matIconButton aria-label="Siguiente" (click)="next()">
+            <mat-icon>chevron_right</mat-icon>
+        </button>
+    </div>
+
+    <div class="showcase-info">
+        <h2>{{ current().name }}</h2>
+        <div class="dots">
+            @for (m of models; track m.file; let i = $index) {
+            <span class="dot" [class.active]="i === index()" (click)="index.set(i)"></span>
+            }
+        </div>
+        <small>Arrastra para girar el modelo</small>
+    </div>
+
+</section>

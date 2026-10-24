@@ -1,0 +1,48 @@
+<h2 mat-dialog-title>
+  @if (isEditMode()) {
+    Edit User
+  } @else {
+    New User
+  }
+</h2>
+
+<mat-dialog-content>
+  <div class="formUser">
+    <mat-form-field appearance="outline">
+      <mat-label>Full Name</mat-label>
+      <input matInput [formField]="userForm.fullName">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" [formField]="userForm.email">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Type</mat-label>
+      <mat-select [formField]="userForm.type">
+        @for (t of userTypes; track t) {
+          <mat-option [value]="t">{{ t }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (isEditMode()) {
+      <mat-checkbox [formField]="userForm.resetPassword">
+        Require password change on next login
+      </mat-checkbox>
+    }
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button matButton="elevated" (click)="close()">
+    <mat-icon>close</mat-icon>
+    Close
+  </button>
+  <button matButton="elevated" [disabled]="userForm().invalid()" (click)="save()">
+    <mat-icon>save</mat-icon>
+    Save
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,1 @@
+export const USER_TYPES = ['Admin', 'Sales-Person'] as const;

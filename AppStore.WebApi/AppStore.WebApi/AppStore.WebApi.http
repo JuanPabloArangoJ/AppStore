@@ -1,0 +1,27 @@
+@AppStore.WebApi_HostAddress = http://localhost:5067
+
+GET {{AppStore.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+GET {{AppStore.WebApi_HostAddress}}/api/user/getall
+
+###
+
+POST {{AppStore.WebApi_HostAddress}}/api/user/create
+Content-Type: application/json
+
+{
+  //CreateUserRequest
+}
+
+###
+
+POST {{AppStore.WebApi_HostAddress}}/api/product
+
+###
+
+GET {{AppStore.WebApi_HostAddress}}/api/product
+
+###

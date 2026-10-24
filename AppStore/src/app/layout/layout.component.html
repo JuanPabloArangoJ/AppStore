@@ -1,0 +1,38 @@
+<mat-toolbar>
+  <span class="title">Mi Tienda</span>
+
+  <a mat-button routerLink="/home" routerLinkActive="active">Home</a>
+
+  @if (authService.isAdmin()) {
+    <a mat-button routerLink="/users" routerLinkActive="active">Users</a>
+    <a mat-button routerLink="/products" routerLinkActive="active">Products</a>
+  }
+
+  <a mat-button routerLink="/sales" routerLinkActive="active">NewSale</a>
+
+  @if (authService.isAdmin()) {
+    <a mat-button routerLink="/sales-history" routerLinkActive="active">Sale history</a>
+  }
+
+  <span class="spacer"></span>
+
+  <a mat-button routerLink="/cart" routerLinkActive="active">
+  <mat-icon
+    [matBadge]="cartService.totalItems()"
+    [matBadgeHidden]="cartService.totalItems() === 0"
+    matBadgeColor="warn">
+    shopping_cart
+  </mat-icon>
+  <span>Carrito</span>
+</a>
+
+<span class="user-name">{{ authService.user()?.fullName }}</span>
+
+  <button matIconButton aria-label="Logout" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
+<main class="content">
+  <router-outlet />
+</main>

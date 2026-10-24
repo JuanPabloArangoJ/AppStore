@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>
+  @if (isEditMode()) {
+    Edit Product
+  } @else {
+    New Product
+  }
+</h2>
+
+<mat-dialog-content>
+  <div class="formProduct">
+    <mat-form-field appearance="outline">
+      <mat-label>SKU</mat-label>
+      <input matInput [formField]="productForm.sku">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput [formField]="productForm.name">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Stock</mat-label>
+      <input matInput type="number" step="1" [formField]="productForm.stock">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Price</mat-label>
+      <input matInput type="number" step="0.01" [formField]="productForm.price">
+    </mat-form-field>
+
+    @if (previewUrl()) {
+      <img class="preview" [src]="previewUrl()" alt="Product preview">
+    }
+
+    <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)">
+    <button matButton="filled" type="button" (click)="fileInput.click()">
+      <mat-icon>upload</mat-icon>
+      {{ selectedFile()?.name ?? (isEditMode() ? 'Change photo' : 'Select photo') }}
+    </button>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button matButton="elevated" (click)="close()">
+    <mat-icon>close</mat-icon>
+    Close
+  </button>
+  <button matButton="elevated" [disabled]="!canSave()" (click)="save()">
+    <mat-icon>save</mat-icon>
+    Save
+  </button>
+</mat-dialog-actions>

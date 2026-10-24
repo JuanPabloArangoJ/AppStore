@@ -1,0 +1,69 @@
+
+<div class="login-wrapper">
+  <div class="flip-scene" [class.flipped]="flipped()">
+    <div class="flip-card">
+
+      <!-- FRONT — LOGIN -->
+      <div class="glass-circle front">
+        <div class="accent-ring"></div>
+
+        <form class="login-form" novalidate (submit)="$event.preventDefault(); login()">
+          <h1>Login</h1>
+          <div class="subtitle">Sign in to your account</div>
+
+          <div class="input-box">
+            <i class="fa-solid fa-user"></i>
+            <input type="email" placeholder="Email" autocomplete="on" [formField]="loginForm.email">
+          </div>
+
+          <div class="input-box">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" placeholder="Password" autocomplete="off" [formField]="loginForm.password">
+          </div>
+
+          <div class="forgot">
+            <div class="remember" (click)="remember.set(!remember())">
+              <div class="switch" [class.on]="remember()"></div>
+              Remember me
+            </div>
+            <a>Forgot password?</a>
+          </div>
+
+          <button type="submit" [disabled]="loginForm().invalid()">Sign In</button>
+
+          <div class="signup-text">Don't have an account? <a (click)="flipped.set(true)">Sign up</a></div>
+        </form>
+      </div>
+
+      <!-- BACK — SIGN UP -->
+      <div class="glass-circle back">
+        <div class="accent-ring"></div>
+
+        <form class="login-form" novalidate (submit)="$event.preventDefault(); register()">
+          <h1>Sign Up</h1>
+          <div class="subtitle">Create your account</div>
+
+          <div class="input-box">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" placeholder="Full name" autocomplete="off" [formField]="signupForm.fullName">
+          </div>
+
+          <div class="input-box">
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" placeholder="Email" autocomplete="off" [formField]="signupForm.email">
+          </div>
+
+          <div class="input-box" style="margin-bottom: 30px;">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" placeholder="Password (min. 6)" autocomplete="off" [formField]="signupForm.password">
+          </div>
+
+          <button type="submit" [disabled]="signupForm().invalid()">Create Account</button>
+
+          <div class="signup-text">Already have an account? <a (click)="flipped.set(false)">Login</a></div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

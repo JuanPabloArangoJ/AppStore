@@ -1,0 +1,55 @@
+.container {
+  padding: 30px;
+  max-width: 1200px;
+  margin: auto;
+
+  .container-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .filter {
+    width: 500px;
+    max-width: 100%;
+  }
+
+  .table-container {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    overflow-x: auto;
+  }
+
+  table {
+  width: 100%;
+
+  th,
+  td {
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+    
+    // La última columna no necesita línea a su derecha
+    &:last-child {
+      border-right: none;
+    }
+  }
+}
+
+  .product-photo {
+  width: 100px;
+  height: 100px;
+  margin: 5px 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10%;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+  .low-stock {
+    color: #d32f2f;
+    font-weight: 500;
+  }
+
+  mat-paginator {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+}
