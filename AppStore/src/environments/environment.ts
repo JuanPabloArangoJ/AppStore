@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: "http://localhost:5067/api"
+    apiUrl: 'https://gamestoreappweb.runasp.net/api',
 };
