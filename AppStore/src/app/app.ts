@@ -1,6 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ThemeService } from './services/theme-service';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +8,5 @@ import { ThemeService } from './services/theme-service';
   styleUrl: './app.scss',
 })
 export class App {
-  private theme = inject(ThemeService);
   protected readonly title = signal('AppStore');
 }

@@ -1,25 +1,32 @@
 <div class="history-page">
-
-  <div class="history-header">
+  <div class="history-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
     <h1>Sales History</h1>
+    <button matButton="filled" type="button" (click)="downloadPdfReport()">
+      <mat-icon>picture_as_pdf</mat-icon>
+      Descargar Informe PDF
+    </button>
   </div>
 
   <!-- Filtro por fechas -->
   <div class="filters">
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Start Date</mat-label>
-      <input matInput [matDatepicker]="startPicker"
-             [value]="startDate()"
-             (dateChange)="startDate.set($event.value)">
+      <input
+        matInput
+        [matDatepicker]="startPicker"
+        [value]="startDate()"
+        (dateChange)="startDate.set($event.value)">
       <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
       <mat-datepicker #startPicker></mat-datepicker>
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>End Date</mat-label>
-      <input matInput [matDatepicker]="endPicker"
-             [value]="endDate()"
-             (dateChange)="endDate.set($event.value)">
+      <input
+        matInput
+        [matDatepicker]="endPicker"
+        [value]="endDate()"
+        (dateChange)="endDate.set($event.value)">
       <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
       <mat-datepicker #endPicker></mat-datepicker>
     </mat-form-field>
@@ -32,7 +39,6 @@
 
   <!-- Cuadro con las ventas -->
   <div class="history-card">
-
     <mat-form-field appearance="outline" class="keyword" subscriptSizing="dynamic">
       <mat-label>Type a keyword...</mat-label>
       <input matInput (keyup)="onKeyword($event)">
@@ -44,9 +50,7 @@
     } @else {
       <mat-accordion class="sales-list">
         @for (sale of pagedSales(); track sale.saleId) {
-
           <mat-expansion-panel class="sale-panel" (opened)="loadDetail(sale.saleId)">
-
             <mat-expansion-panel-header>
               <mat-panel-title class="sale-panel__title">
                 <mat-icon>shopping_cart</mat-icon>
@@ -62,7 +66,6 @@
               </mat-panel-description>
             </mat-expansion-panel-header>
 
-            <!-- Detalle -->
             @let lines = details()[sale.saleId];
 
             <div class="sale-detail">
@@ -87,7 +90,6 @@
                 </div>
               }
             </div>
-
           </mat-expansion-panel>
         }
       </mat-accordion>
@@ -101,6 +103,5 @@
         aria-label="Select page of sales">
       </mat-paginator>
     }
-
   </div>
 </div>

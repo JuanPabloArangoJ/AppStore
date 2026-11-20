@@ -8,6 +8,7 @@ import { ChangePassword } from '../../components/change-password/change-password
 import { GetUserResponse } from '../../interfaces/user-dtos';
 import { AuthService } from '../../services/auth-service';
 import { UserService } from '../../services/user-service';
+
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @Component({
@@ -17,11 +18,10 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   templateUrl: './login-page.html',
 })
 export class LoginPage {
-
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private _snackBar = inject(MatSnackBar)
+  private _snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
   protected flipped = signal(false);
@@ -43,7 +43,7 @@ export class LoginPage {
     required(field.email);
     pattern(field.email, EMAIL_PATTERN);
     required(field.password);
-    pattern(field.password, /^.{6,}$/);   // mínimo 6 caracteres
+    pattern(field.password, /^.{6,}$/);
   });
 
   protected login(): void {
@@ -63,7 +63,35 @@ export class LoginPage {
     });
   }
 
-  // Primer ingreso (o reset forzado por un admin): debe elegir su contraseña definitiva
+  protected async forgotPassword(): Promise<void> {
+    const { value: email } = await Swal.fire({
+      title: 'Recuperar contraseña',
+      input: 'email',
+      inputLabel: 'Ingresa el correo de tu cuenta',
+      inputPlaceholder: 'correo@ejemplo.com',
+      inputValue: this.loginModel().email,
+      showCancelButton: true,
+      confirmButtonText: 'Recuperar',
+      cancelButtonText: 'Cancelar',
+      theme: 'dark',
+    });
+
+    if (!email) return;
+
+    this.userService.forgotPassword(email.trim()).subscribe({
+      next: (res) => {
+        this.loginModel.set({ email: email.trim(), password: res.tempPassword });
+        Swal.fire({
+          title: 'Contraseña temporal generada',
+          html: `Tu clave temporal es: <strong>${res.tempPassword}</strong><br><small>Ya la hemos colocado en el formulario. Presiona <b>Sign In</b> para definir tu nueva contraseña.</small>`,
+          icon: 'success',
+          theme: 'dark',
+        });
+      },
+      error: (e) => this.showError(e),
+    });
+  }
+
   private askNewPassword(user: GetUserResponse): void {
     this.dialog
       .open(ChangePassword, {
@@ -74,7 +102,6 @@ export class LoginPage {
       })
       .afterClosed()
       .subscribe((changed) => {
-        // Si cancela, no entra al sistema
         if (changed) this.enter({ ...user, resetPassword: false });
       });
   }
@@ -84,21 +111,23 @@ export class LoginPage {
 
     const { fullName, email, password } = this.signupForm().value();
 
-    this.userService.register({
-      fullName: fullName.trim(),
-      email: email.trim(),
-      password,
-    }).subscribe({
-      next: (user) => {
-        this._snackBar.open('Password updated successfully!', 'ok', {
+    this.userService
+      .register({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        password,
+      })
+      .subscribe({
+        next: (user) => {
+          this._snackBar.open('Cuenta creada exitosamente!', 'ok', {
             horizontalPosition: 'center',
             verticalPosition: 'top',
-            duration: 2000
-          })
-        this.enter(user);
-      },
-      error: (e) => this.showError(e),
-    });
+            duration: 2000,
+          });
+          this.enter(user);
+        },
+        error: (e) => this.showError(e),
+      });
   }
 
   private enter(user: GetUserResponse): void {

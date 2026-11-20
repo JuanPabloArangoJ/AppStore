@@ -1,0 +1,258 @@
+<div class="landing">
+  <!-- Barra de progreso de scroll -->
+  <div class="progress" [style.width.%]="progress()"></div>
+
+  <!-- NAV flotante tipo píldora -->
+  <nav class="nav" [class.nav--scrolled]="scrolled()">
+    <a class="brand" href="#inicio">
+      <span class="brand__logo"><mat-icon>sports_esports</mat-icon></span>
+      <span>GameStore</span>
+    </a>
+
+    <div class="nav__links">
+      <a href="#inicio">Inicio</a>
+      <a href="#funciones">Funciones</a>
+      <a href="#proceso">Cómo funciona</a>
+      <a href="#catalogo">Catálogo</a>
+    </div>
+
+    <div class="nav__actions">
+      @if (authService.isLoggedIn()) {
+        <a class="btn btn--primary" routerLink="/home">
+          <mat-icon>dashboard</mat-icon>
+          Ir al Dashboard
+        </a>
+      } @else {
+        <a class="btn btn--ghost" routerLink="/login">Iniciar Sesión</a>
+        <a class="btn btn--primary" routerLink="/login">Comenzar Ahora</a>
+      }
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" id="inicio">
+    <div class="hero__blob hero__blob--a"></div>
+    <div class="hero__blob hero__blob--b"></div>
+
+    <div class="hero__content">
+      <span class="badge">
+        <i class="badge__dot"></i>
+        Hardware & Gaming Gear
+      </span>
+      <h1>Equipa tu setup con la mejor tecnología</h1>
+      <p>
+        Gestiona inventario, ventas y catálogo en tiempo real desde una sola plataforma
+        moderna, segura y rápida.
+      </p>
+      <div class="hero__buttons">
+        <a class="btn btn--primary btn--lg" [routerLink]="authService.isLoggedIn() ? '/home' : '/login'">
+          <mat-icon>rocket_launch</mat-icon>
+          {{ authService.isLoggedIn() ? 'Entrar al Sistema' : 'Acceder a la Tienda' }}
+        </a>
+        <a class="btn btn--soft btn--lg" href="#catalogo">
+          <mat-icon>storefront</mat-icon>
+          Ver Catálogo
+        </a>
+      </div>
+
+      <ul class="hero__proof">
+        <li><mat-icon>check_circle</mat-icon> Stock en tiempo real</li>
+        <li><mat-icon>check_circle</mat-icon> Roles Admin y Vendedor</li>
+        <li><mat-icon>check_circle</mat-icon> Reportes en PDF</li>
+      </ul>
+    </div>
+
+    <!-- Composición visual: círculo neumórfico + tarjetas flotantes -->
+    <div class="hero__visual" aria-hidden="true">
+      <div class="orb">
+        <div class="orb__ring"></div>
+        <div class="orb__ring orb__ring--2"></div>
+        <div class="orb__core">
+          <mat-icon>sports_esports</mat-icon>
+        </div>
+        <span class="orb__dot orb__dot--1"></span>
+        <span class="orb__dot orb__dot--2"></span>
+      </div>
+
+      <div class="float-card float-card--stock">
+        <div class="float-card__head">
+          <span class="chip-icon chip-icon--amber"><mat-icon>inventory_2</mat-icon></span>
+          <div>
+            <small>Stock</small>
+            <strong>3 por agotarse</strong>
+          </div>
+        </div>
+        <div class="bar"><span></span></div>
+      </div>
+
+      <div class="float-card float-card--sales">
+        <div class="float-card__head">
+          <span class="chip-icon"><mat-icon>trending_up</mat-icon></span>
+          <div>
+            <small>Ventas del mes</small>
+            <strong>+12%</strong>
+          </div>
+        </div>
+        <svg viewBox="0 0 160 50" class="spark">
+          <defs>
+            <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#3b82f6" stop-opacity=".35" />
+              <stop offset="1" stop-color="#3b82f6" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <path class="spark__area" d="M0 42 L22 34 L46 38 L70 22 L96 28 L120 12 L160 6 L160 50 L0 50 Z" fill="url(#sparkFill)" />
+          <path class="spark__line" d="M0 42 L22 34 L46 38 L70 22 L96 28 L120 12 L160 6" />
+        </svg>
+      </div>
+
+      <div class="float-card float-card--sale">
+        <span class="chip-icon chip-icon--ok"><mat-icon>check</mat-icon></span>
+        <div>
+          <small>Venta registrada</small>
+          <strong>Stock actualizado</strong>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CINTA ANIMADA DE CATEGORÍAS -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      @for (cat of marquee; track $index) {
+        <span class="marquee__item">
+          <mat-icon>bolt</mat-icon>
+          {{ cat }}
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- FUNCIONES -->
+  <section class="features" id="funciones">
+    <div class="section-head reveal">
+      <h2>Todo tu negocio gamer en un solo lugar</h2>
+      <p>Menos hojas de cálculo, más tiempo para vender.</p>
+    </div>
+
+    <div class="features__grid">
+      <article class="feature-card reveal" style="--i: 0">
+        <div class="feature-card__icon"><mat-icon>inventory_2</mat-icon></div>
+        <h3>Control de Stock</h3>
+        <p>Actualización automática de inventario en cada venta realizada.</p>
+        <ul>
+          <li>Alertas de bajo stock</li>
+          <li>Búsqueda por SKU</li>
+        </ul>
+      </article>
+
+      <article class="feature-card reveal" style="--i: 1">
+        <div class="feature-card__icon"><mat-icon>security</mat-icon></div>
+        <h3>Seguridad JWT</h3>
+        <p>Rutas protegidas por roles de Administrador y Vendedor.</p>
+        <ul>
+          <li>Sesiones con token</li>
+          <li>Permisos por rol</li>
+        </ul>
+      </article>
+
+      <article class="feature-card reveal" style="--i: 2">
+        <div class="feature-card__icon"><mat-icon>analytics</mat-icon></div>
+        <h3>Reportes y Métricas</h3>
+        <p>Visualización gráfica de datos y exportación de informes en PDF.</p>
+        <ul>
+          <li>Gráficos de ventas</li>
+          <li>Exportación a PDF</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- PROCESO (secuencia real: tiene sentido numerar) -->
+  <section class="steps" id="proceso">
+    <div class="section-head reveal">
+      <h2>De la venta al reporte en tres pasos</h2>
+    </div>
+
+    <ol class="steps__list">
+      <li class="step reveal" style="--i: 0">
+        <span class="step__num">1</span>
+        <h3>Inicia sesión</h3>
+        <p>Entra con tu rol de Administrador o Vendedor.</p>
+      </li>
+      <li class="step reveal" style="--i: 1">
+        <span class="step__num">2</span>
+        <h3>Registra la venta</h3>
+        <p>El stock se descuenta al instante, sin pasos extra.</p>
+      </li>
+      <li class="step reveal" style="--i: 2">
+        <span class="step__num">3</span>
+        <h3>Revisa tus métricas</h3>
+        <p>Consulta gráficos y descarga el informe en PDF.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- CATÁLOGO -->
+  <section id="catalogo" class="catalog">
+    <div class="section-head reveal">
+      <h2>Productos Destacados</h2>
+      <p>Una muestra de lo que hay disponible en la tienda.</p>
+    </div>
+
+    @if (featuredProducts().length === 0) {
+      <div class="empty reveal">
+        <mat-icon>lock_open</mat-icon>
+        <p>Explora nuestro catálogo iniciando sesión en la plataforma.</p>
+        <a class="btn btn--primary" routerLink="/login">Iniciar Sesión</a>
+      </div>
+    } @else {
+      <div class="catalog__grid">
+        @for (item of featuredProducts(); track item.productId; let i = $index) {
+          <article class="product reveal" [style.--i]="i">
+            <div class="product__media">
+              <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" />
+              <span
+                class="stock-tag"
+                [class.stock-tag--low]="item.stock > 0 && item.stock <= 5"
+                [class.stock-tag--out]="item.stock === 0"
+              >
+                @if (item.stock === 0) {
+                  Agotado
+                } @else if (item.stock <= 5) {
+                  Últimas unidades
+                } @else {
+                  Disponible
+                }
+              </span>
+            </div>
+            <div class="product__body">
+              <small class="sku">SKU: {{ item.sku }}</small>
+              <h3>{{ item.name }}</h3>
+              <p class="price">S/ {{ item.price | number: '1.2-2' }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="cta reveal">
+    <div class="cta__box">
+      <h2>Lleva tu tienda al siguiente nivel</h2>
+      <p>Inventario, ventas y reportes sincronizados desde el primer día.</p>
+      <a class="btn btn--accent btn--lg" [routerLink]="authService.isLoggedIn() ? '/home' : '/login'">
+        <mat-icon>rocket_launch</mat-icon>
+        {{ authService.isLoggedIn() ? 'Entrar al Sistema' : 'Comenzar Ahora' }}
+      </a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="brand brand--footer">
+      <span class="brand__logo"><mat-icon>sports_esports</mat-icon></span>
+      <span>GameStore</span>
+    </div>
+    <p>© 2026 GameStore · Proyecto Desarrollo Web</p>
+  </footer>
+</div>

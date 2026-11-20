@@ -1,18 +1,21 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Service } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   ChangePasswordRequest,
   CreateUserRequest,
+  ForgotPasswordResponse,
   GetUserResponse,
   LoginUserRequest,
   MessageResponse,
   RegisterUserRequest,
-  UpdateUserRequest
+  UpdateUserRequest,
 } from '../interfaces/user-dtos';
 
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class UserService {
 
   private http = inject(HttpClient);
@@ -27,11 +30,15 @@ export class UserService {
   }
 
   register(req: RegisterUserRequest): Observable<GetUserResponse> {
-  return this.http.post<GetUserResponse>(`${this.endPoint}/register`, req);
-}
+    return this.http.post<GetUserResponse>(`${this.endPoint}/register`, req);
+  }
 
   login(req: LoginUserRequest): Observable<GetUserResponse> {
     return this.http.post<GetUserResponse>(`${this.endPoint}/login`, req);
+  }
+
+  forgotPassword(email: string): Observable<ForgotPasswordResponse> {
+    return this.http.post<ForgotPasswordResponse>(`${this.endPoint}/forgot-password`, { email });
   }
 
   changePassword(req: ChangePasswordRequest): Observable<MessageResponse> {
@@ -49,6 +56,4 @@ export class UserService {
   delete(id: number): Observable<MessageResponse> {
     return this.http.delete<MessageResponse>(`${this.endPoint}/${id}`);
   }
-
-  
 }

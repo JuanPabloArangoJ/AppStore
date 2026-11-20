@@ -1,11 +1,13 @@
 ﻿using AppStore.WebApi.Business;
 using AppStore.WebApi.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStore.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SaleController : ControllerBase
     {
         private readonly SaleBusiness _saleBusiness;
@@ -16,7 +18,6 @@ namespace AppStore.WebApi.Controllers
         }
 
         // GET: api/sale
-        // GET: api/sale?startDate=2026-08-25&endDate=2026-08-28
         [HttpGet]
         public async Task<ActionResult<List<GetSaleResponse>>> GetAll(
             [FromQuery] DateTime? startDate,
@@ -56,17 +57,14 @@ namespace AppStore.WebApi.Controllers
             }
             catch (ArgumentException ex)
             {
-                // Venta sin productos, cantidades inválidas
                 return BadRequest(new { message = ex.Message });
             }
             catch (KeyNotFoundException ex)
             {
-                // Usuario o producto inexistente
                 return NotFound(new { message = ex.Message });
             }
             catch (InvalidOperationException ex)
             {
-                // Stock insuficiente
                 return Conflict(new { message = ex.Message });
             }
         }

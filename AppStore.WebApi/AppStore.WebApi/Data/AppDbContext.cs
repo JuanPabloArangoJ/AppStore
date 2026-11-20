@@ -86,7 +86,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(150);
             entity.Property(e => e.FullName).HasMaxLength(150);
             entity.Property(e => e.Passwrd).HasMaxLength(50);
-            entity.Property(e => e.ResetPassword).HasMaxLength(50);
             entity.Property(e => e.UserType).HasMaxLength(50);
         });
 

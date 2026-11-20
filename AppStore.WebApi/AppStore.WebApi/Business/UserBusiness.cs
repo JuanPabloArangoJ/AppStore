@@ -1,13 +1,41 @@
-﻿using AppStore.WebApi.Constants;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using AppStore.WebApi.Constants;
 using AppStore.WebApi.Data;
 using AppStore.WebApi.DTOs;
 using AppStore.WebApi.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AppStore.WebApi.Business
 {
-    public class UserBusiness(AppDbContext _db)
+    public class UserBusiness(AppDbContext _db, IConfiguration _config)
     {
+        private string GenerateJwtToken(Usuario user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Role, user.UserType)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(8),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
         public async Task<List<GetUserResponse>> GetAll()
         {
             var users = await _db
@@ -19,7 +47,8 @@ namespace AppStore.WebApi.Business
                     e.Email,
                     e.UserType,
                     e.ResetPassword
-                    )).ToListAsync();
+                ))
+                .ToListAsync();
 
             return users;
         }
@@ -36,7 +65,7 @@ namespace AppStore.WebApi.Business
                     e.Email,
                     e.UserType,
                     e.ResetPassword
-                    ))
+                ))
                 .FirstOrDefaultAsync();
 
             return user;
@@ -47,17 +76,40 @@ namespace AppStore.WebApi.Business
             var user = await _db
                 .Usuarios
                 .AsNoTracking()
-                .Where(e => e.Email == request.Email && e.Passwrd == request.Password)
-                .Select(e => new GetUserResponse(
-                    e.UserId,
-                    e.FullName,
-                    e.Email,
-                    e.UserType,
-                    e.ResetPassword
-                ))
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(e => e.Email == request.Email && e.Passwrd == request.Password);
 
-            return user;
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new GetUserResponse(
+                user.UserId,
+                user.FullName,
+                user.Email,
+                user.UserType,
+                user.ResetPassword,
+                GenerateJwtToken(user)
+            );
+        }
+
+        public async Task<string?> ForgotPassword(string email)
+        {
+            var user = await _db
+                .Usuarios
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var tempPassword = $"Tmp{Random.Shared.Next(1000, 9999)}";
+            user.Passwrd = tempPassword;
+            user.ResetPassword = true;
+
+            await _db.SaveChangesAsync();
+            return tempPassword;
         }
 
         public async Task<bool> ChangePassword(ChangePasswordRequest request)
@@ -96,7 +148,6 @@ namespace AppStore.WebApi.Business
                 FullName = request.FullName,
                 Email = request.Email,
                 UserType = request.Type,
-                // Contraseña inicial = correo; debe cambiarla en su primer login
                 Passwrd = string.IsNullOrWhiteSpace(request.Password) ? request.Email : request.Password,
                 ResetPassword = true
             };
@@ -119,15 +170,22 @@ namespace AppStore.WebApi.Business
             {
                 FullName = request.FullName,
                 Email = request.Email,
-                UserType = UserTypes.SalesPerson,   // siempre SalesPerson
+                UserType = UserTypes.SalesPerson,
                 Passwrd = request.Password,
-                ResetPassword = false               // eligió su propia contraseña
+                ResetPassword = false
             };
 
             _db.Usuarios.Add(user);
             await _db.SaveChangesAsync();
 
-            return new GetUserResponse(user.UserId, user.FullName, user.Email, user.UserType, user.ResetPassword);
+            return new GetUserResponse(
+                user.UserId,
+                user.FullName,
+                user.Email,
+                user.UserType,
+                user.ResetPassword,
+                GenerateJwtToken(user)
+            );
         }
 
         public async Task<bool> Update(UpdateUserRequest request)
@@ -158,7 +216,7 @@ namespace AppStore.WebApi.Business
 
             if (user == null)
             {
-                return false;   
+                return false;
             }
 
             _db.Usuarios.Remove(user);

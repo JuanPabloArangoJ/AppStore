@@ -1,5 +1,7 @@
 <h2 mat-dialog-title>
-  @if (isEditMode()) {
+  @if (isProfileMode()) {
+    Editar Mi Perfil
+  } @else if (isEditMode()) {
     Edit User
   } @else {
     New User
@@ -18,22 +20,23 @@
       <input matInput type="email" [formField]="userForm.email">
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Type</mat-label>
-      <mat-select [formField]="userForm.type">
-        @for (t of userTypes; track t) {
-          <mat-option [value]="t">{{ t }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+    @if (!isProfileMode()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select [formField]="userForm.type">
+          @for (t of userTypes; track t) {
+            <mat-option [value]="t">{{ t }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
 
-    @if (isEditMode()) {
-      <mat-checkbox [formField]="userForm.resetPassword">
-        Require password change on next login
-      </mat-checkbox>
+      @if (isEditMode()) {
+        <mat-checkbox [formField]="userForm.resetPassword">
+          Require password change on next login
+        </mat-checkbox>
+      }
     }
   </div>
-
 </mat-dialog-content>
 
 <mat-dialog-actions>

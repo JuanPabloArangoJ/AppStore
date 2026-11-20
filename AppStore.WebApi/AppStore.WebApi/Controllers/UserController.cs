@@ -1,12 +1,13 @@
 ﻿using AppStore.WebApi.Business;
 using AppStore.WebApi.DTOs;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStore.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UserController(UserBusiness _userBusiness) : ControllerBase
     {
         [HttpGet]
@@ -49,6 +50,7 @@ namespace AppStore.WebApi.Controllers
         }
 
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
         {
             try
@@ -99,6 +101,7 @@ namespace AppStore.WebApi.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
         {
             var user = await _userBusiness.Login(request);
@@ -110,7 +113,25 @@ namespace AppStore.WebApi.Controllers
             return Ok(user);
         }
 
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            var tempPassword = await _userBusiness.ForgotPassword(request.Email);
+            if (tempPassword == null)
+            {
+                return NotFound(new { message = "No existe una cuenta registrada con ese correo." });
+            }
+
+            return Ok(new
+            {
+                message = "Se generó una contraseña temporal. Úsala para ingresar y definir tu nueva contraseña.",
+                tempPassword
+            });
+        }
+
         [HttpPut("change-password")]
+        [AllowAnonymous]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
             var result = await _userBusiness.ChangePassword(request);

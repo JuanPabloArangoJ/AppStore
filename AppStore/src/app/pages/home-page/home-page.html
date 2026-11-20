@@ -1,60 +1,284 @@
 <section class="home">
+  <span class="blob blob--a"></span>
+  <span class="blob blob--b"></span>
 
-    <app-theme-toggle class="theme-corner" />
-    <header class="welcome">
+  @if (authService.isAdmin()) {
+    <!-- =====================================================
+         VISTA ADMIN
+    ====================================================== -->
+    <div class="bento">
+      <!-- Bienvenida -->
+      <article class="glass welcome c6 r2" style="--i: 0">
+        <span class="pill"><i class="pill__dot"></i> Panel de administración</span>
         <h1>{{ greeting }}, {{ firstName() }}</h1>
         <p>Bienvenido a GameStore. ¿Qué quieres hacer hoy?</p>
 
         <div class="quick-links">
-            <a matButton="filled" routerLink="/sales">
-                <mat-icon>add_shopping_cart</mat-icon>
-                Nueva venta
-            </a>
-            <a matButton="elevated" routerLink="/cart">
-                <mat-icon>shopping_cart</mat-icon>
-                Carrito
-            </a>
+          <a class="btn btn--primary" routerLink="/sales">
+            <mat-icon>add_shopping_cart</mat-icon>
+            Nueva venta
+          </a>
+          <a class="btn btn--glass" routerLink="/cart">
+            <mat-icon>shopping_cart</mat-icon>
+            Carrito
+          </a>
+          <a class="btn btn--glass" routerLink="/products">
+            <mat-icon>inventory_2</mat-icon>
+            Productos
+          </a>
+          <a class="btn btn--glass" routerLink="/sales-history">
+            <mat-icon>receipt_long</mat-icon>
+            Historial
+          </a>
+        </div>
+      </article>
 
-            @if (authService.isAdmin()) {
-            <a matButton="elevated" routerLink="/products">
-                <mat-icon>inventory_2</mat-icon>
-                Productos
-            </a>
-            <a matButton="elevated" routerLink="/sales-history">
-                <mat-icon>receipt_long</mat-icon>
-                Historial
-            </a>
+      <!-- KPIs -->
+      <article class="glass kpi c3" style="--i: 1">
+        <span class="chip"><mat-icon>inventory_2</mat-icon></span>
+        <small>Productos</small>
+        <strong>{{ products().length }}</strong>
+        <em>{{ lowStock().length }} con stock bajo</em>
+      </article>
+
+      <article class="glass kpi c3" style="--i: 2">
+        <span class="chip"><mat-icon>warehouse</mat-icon></span>
+        <small>Unidades en stock</small>
+        <strong>{{ totalUnits() | number }}</strong>
+        <em>en todo el catálogo</em>
+      </article>
+
+      <article class="glass kpi c3" style="--i: 3">
+        <span class="chip chip--amber"><mat-icon>savings</mat-icon></span>
+        <small>Valor del inventario</small>
+        <strong>S/ {{ inventoryValue() | number: '1.0-0' }}</strong>
+        <em>precio × unidades</em>
+      </article>
+
+      <article class="glass kpi c3" style="--i: 4">
+        <span class="chip chip--ok"><mat-icon>payments</mat-icon></span>
+        <small>Ventas acumuladas</small>
+        <strong>S/ {{ salesTotal() | number: '1.0-0' }}</strong>
+        <em>{{ sales().length }} ventas registradas</em>
+      </article>
+
+      <!-- Gráfico de inventario -->
+      <article class="glass chart-card c8 r3" style="--i: 5">
+        <header class="card-head">
+          <div>
+            <h3>Inventario actual por producto</h3>
+            <small>Primeros 8 productos del catálogo</small>
+          </div>
+          <div class="legend">
+            <span><i class="legend__dot legend__dot--blue"></i> Stock normal</span>
+            <span><i class="legend__dot legend__dot--amber"></i> Stock bajo (≤ {{ lowStockLimit }})</span>
+          </div>
+        </header>
+        <div class="chart-box">
+          <canvas #stockChart></canvas>
+        </div>
+      </article>
+
+      <!-- Usuarios -->
+      <article class="glass users-card c4 r3" style="--i: 6">
+        <header class="card-head">
+          <div>
+            <h3>Usuarios</h3>
+            <small>Equipo con acceso al sistema</small>
+          </div>
+          <span class="chip"><mat-icon>group</mat-icon></span>
+        </header>
+
+        @if (userStats().total === 0) {
+          <p class="empty">Aún no hay usuarios para mostrar.</p>
+        } @else {
+          <div class="users-total">
+            <strong>{{ userStats().total }}</strong>
+            <span>usuarios registrados</span>
+          </div>
+
+          <div class="split" role="img" [attr.aria-label]="userStats().admins + ' admins y ' + userStats().sellers + ' vendedores'">
+            <span class="split__admin" [style.width.%]="userStats().adminPct"></span>
+          </div>
+          <div class="legend legend--row">
+            <span><i class="legend__dot legend__dot--amber"></i> {{ userStats().admins }} Admin</span>
+            <span><i class="legend__dot legend__dot--blue"></i> {{ userStats().sellers }} Vendedores</span>
+          </div>
+
+          <ul class="user-list">
+            @for (u of recentUsers(); track u.id) {
+              <li>
+                <span class="avatar">{{ initials(u.fullName) }}</span>
+                <div class="user-list__info">
+                  <strong>{{ u.fullName }}</strong>
+                  <small>{{ u.email }}</small>
+                </div>
+                <span class="tag" [class.tag--admin]="isAdminRole(u.role)">{{ roleLabel(u.role) }}</span>
+              </li>
             }
-        </div>
-    </header>
+          </ul>
+        }
+      </article>
 
-    <!-- Escaparate 3D -->
-    <div class="showcase">
-        <button matIconButton aria-label="Anterior" (click)="prev()">
-            <mat-icon>chevron_left</mat-icon>
-        </button>
+      <!-- Historial de ventas -->
+      <article class="glass sales-card c5 r3" style="--i: 7">
+        <header class="card-head">
+          <div>
+            <h3>Últimas ventas</h3>
+            <small>Movimientos más recientes</small>
+          </div>
+          <a class="link" routerLink="/sales-history">Ver todo</a>
+        </header>
 
-        <div class="stage">
-            <model-viewer class="viewer" [src]="current().file" [attr.alt]="current().name" camera-controls disable-zoom
-                camera-orbit="auto auto 130%" auto-rotate auto-rotate-delay="0" rotation-per-second="25deg"
-                shadow-intensity="1" shadow-softness="0.6" environment-image="neutral" exposure="1.1"
-                interaction-prompt="none">
-            </model-viewer>
-        </div>
-
-        <button matIconButton aria-label="Siguiente" (click)="next()">
-            <mat-icon>chevron_right</mat-icon>
-        </button>
-    </div>
-
-    <div class="showcase-info">
-        <h2>{{ current().name }}</h2>
-        <div class="dots">
-            @for (m of models; track m.file; let i = $index) {
-            <span class="dot" [class.active]="i === index()" (click)="index.set(i)"></span>
+        @if (recentSales().length === 0) {
+          <p class="empty">No hay ventas registradas todavía.</p>
+        } @else {
+          <ul class="sale-list">
+            @for (s of recentSales(); track s.id) {
+              <li>
+                <span class="chip"><mat-icon>receipt_long</mat-icon></span>
+                <div class="sale-list__info">
+                  <strong>Venta #{{ s.id }}</strong>
+                  <small>
+                    @if (s.seller) { {{ s.seller }} · }
+                    @if (s.date) { {{ s.date | date: 'dd/MM/yyyy' }} }
+                  </small>
+                </div>
+                <b>S/ {{ s.total | number: '1.2-2' }}</b>
+              </li>
             }
-        </div>
-        <small>Arrastra para girar el modelo</small>
-    </div>
+          </ul>
+        }
+      </article>
 
+      <!-- Tendencia de ventas -->
+      <article class="glass chart-card c7 r3" style="--i: 8">
+        <header class="card-head">
+          <div>
+            <h3>Ventas de los últimos 7 días</h3>
+            <small>Total vendido por día (S/)</small>
+          </div>
+          <span class="chip chip--ok"><mat-icon>trending_up</mat-icon></span>
+        </header>
+        <div class="chart-box">
+          <canvas #salesChart></canvas>
+        </div>
+      </article>
+
+      <!-- Alertas de stock -->
+      <article class="glass alerts c12" style="--i: 9">
+        <div class="alerts__head">
+          <span class="chip chip--amber"><mat-icon>warning</mat-icon></span>
+          <div>
+            <h3>Reposición necesaria</h3>
+            <small>Productos con {{ lowStockLimit }} unidades o menos</small>
+          </div>
+        </div>
+
+        @if (lowStock().length === 0) {
+          <p class="alerts__ok"><mat-icon>check_circle</mat-icon> Todo el inventario está en niveles saludables.</p>
+        } @else {
+          <ul class="alerts__list">
+            @for (p of lowStock(); track p.productId) {
+              <li>
+                <strong>{{ p.name }}</strong>
+                <span>{{ p.stock === 0 ? 'Agotado' : p.stock + ' uds.' }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </article>
+    </div>
+  } @else {
+    <!-- =====================================================
+         VISTA VENDEDOR
+    ====================================================== -->
+    <div class="bento">
+      <article class="glass welcome c7 r2" style="--i: 0">
+        <span class="pill"><i class="pill__dot"></i> Panel de ventas</span>
+        <h1>{{ greeting }}, {{ firstName() }}</h1>
+        <p>Bienvenido a GameStore. ¿Qué quieres hacer hoy?</p>
+
+        <div class="quick-links">
+          <a class="btn btn--primary btn--lg" routerLink="/sales">
+            <mat-icon>add_shopping_cart</mat-icon>
+            Nueva venta
+          </a>
+          <a class="btn btn--glass btn--lg" routerLink="/cart">
+            <mat-icon>shopping_cart</mat-icon>
+            Carrito
+          </a>
+        </div>
+      </article>
+
+      <article class="glass kpi c5" style="--i: 1">
+        <span class="chip"><mat-icon>inventory_2</mat-icon></span>
+        <small>Productos en catálogo</small>
+        <strong>{{ products().length }}</strong>
+        <em>{{ totalUnits() | number }} unidades disponibles</em>
+      </article>
+
+      <article class="glass kpi c5" style="--i: 2">
+        <span class="chip chip--amber"><mat-icon>warning</mat-icon></span>
+        <small>Stock bajo</small>
+        <strong>{{ lowStock().length }}</strong>
+        <em>con {{ lowStockLimit }} unidades o menos</em>
+      </article>
+
+      <article class="glass quick c8 r3" style="--i: 3">
+        <header class="card-head">
+          <div>
+            <h3>Para vender hoy</h3>
+            <small>Algunos productos del catálogo</small>
+          </div>
+          <a class="link" routerLink="/sales">Ir a ventas</a>
+        </header>
+
+        @if (quickProducts().length === 0) {
+          <p class="empty">No hay productos para mostrar.</p>
+        } @else {
+          <div class="quick__grid">
+            @for (p of quickProducts(); track p.productId) {
+              <div class="mini">
+                <div class="mini__img"><img [src]="p.imageUrl" [alt]="p.name" loading="lazy" /></div>
+                <strong>{{ p.name }}</strong>
+                <div class="mini__row">
+                  <span class="mini__price">S/ {{ p.price | number: '1.2-2' }}</span>
+                  <span class="tag" [class.tag--low]="p.stock <= lowStockLimit">
+                    {{ p.stock === 0 ? 'Agotado' : p.stock + ' uds.' }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </article>
+
+      <article class="glass alerts-side c4 r3" style="--i: 4">
+        <header class="card-head">
+          <div>
+            <h3>Avisos de stock</h3>
+            <small>Antes de prometer una entrega</small>
+          </div>
+          <span class="chip chip--amber"><mat-icon>warning</mat-icon></span>
+        </header>
+
+        @if (lowStock().length === 0) {
+          <p class="alerts__ok"><mat-icon>check_circle</mat-icon> Todo en orden por ahora.</p>
+        } @else {
+          <ul class="sale-list">
+            @for (p of lowStock().slice(0, 6); track p.productId) {
+              <li>
+                <div class="sale-list__info">
+                  <strong>{{ p.name }}</strong>
+                  <small>SKU: {{ p.sku }}</small>
+                </div>
+                <span class="tag tag--low">{{ p.stock === 0 ? 'Agotado' : p.stock + ' uds.' }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </article>
+    </div>
+  }
 </section>

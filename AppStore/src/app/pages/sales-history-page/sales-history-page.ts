@@ -8,6 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import { GetSaleDetailResponse, GetSaleResponse } from '../../interfaces/sale-dtos';
 import { SaleService } from '../../services/sale-service';
@@ -26,17 +28,15 @@ import { SaleService } from '../../services/sale-service';
   ],
   providers: [
     provideNativeDateAdapter(),
-    { provide: MAT_DATE_LOCALE, useValue: 'es-CO' }, // formato dd/mm/aaaa
+    { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
   ],
   templateUrl: './sales-history-page.html',
   styleUrl: './sales-history-page.scss',
 })
 export class SalesHistoryPage implements OnInit {
-
   private saleService = inject(SaleService);
 
   protected sales = signal<GetSaleResponse[]>([]);
-  // Detalles ya cargados, por id de venta (GetAll no los trae)
   protected details = signal<Record<number, GetSaleDetailResponse[]>>({});
 
   protected startDate = signal<Date | null>(null);
@@ -91,7 +91,48 @@ export class SalesHistoryPage implements OnInit {
     });
   }
 
-  // Se llama al abrir un panel; el detalle se pide una sola vez por venta
+  protected downloadPdfReport(): void {
+    const data = this.filteredSales();
+    if (data.length === 0) {
+      Swal.fire({
+        title: 'Sin datos',
+        text: 'No hay ventas para exportar en el informe.',
+        icon: 'info',
+        theme: 'dark',
+      });
+      return;
+    }
+
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text('GameStore - Informe de Ventas', 14, 20);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Fecha de generación: ${new Date().toLocaleString()}`, 14, 27);
+    doc.text(`Total de registros: ${data.length}`, 14, 32);
+
+    const totalGeneral = data.reduce((acc, s) => acc + s.totalAmount, 0);
+
+    autoTable(doc, {
+      startY: 38,
+      head: [['ID Venta', 'Vendedor / Cliente', 'Fecha', 'Total (S/)']],
+      body: data.map((s) => [
+        `#${s.saleId}`,
+        s.userName,
+        s.saleDate,
+        `S/ ${s.totalAmount.toFixed(2)}`,
+      ]),
+      foot: [['', '', 'TOTAL GENERAL', `S/ ${totalGeneral.toFixed(2)}`]],
+      theme: 'striped',
+      headStyles: { fillColor: [15, 23, 42] },
+      footStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255] },
+    });
+
+    doc.save(`informe-ventas-${new Date().toISOString().slice(0, 10)}.pdf`);
+  }
+
   protected loadDetail(saleId: number): void {
     if (this.details()[saleId]) return;
 

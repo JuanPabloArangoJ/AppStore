@@ -1,11 +1,13 @@
 ﻿using AppStore.WebApi.Business;
 using AppStore.WebApi.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppStore.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly ProductBusiness _productBusiness;
@@ -17,16 +19,18 @@ namespace AppStore.WebApi.Controllers
 
         private string ServerUrl => $"{Request.Scheme}://{Request.Host}";
 
-        // GET: api/product
+        // GET: api/product (Público: Landing Page y consumo externo)
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<List<GetProductResponse>>> GetAll()
         {
             var products = await _productBusiness.GetAll(ServerUrl);
             return Ok(products);
         }
 
-        // GET: api/product/5
+        // GET: api/product/5 (Público)
         [HttpGet("{productId:int}")]
+        [AllowAnonymous]
         public async Task<ActionResult<GetProductResponse>> GetById(int productId)
         {
             var product = await _productBusiness.GetById(productId, ServerUrl);

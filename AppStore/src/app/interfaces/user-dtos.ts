@@ -29,14 +29,24 @@ export interface RegisterUserRequest {
   password: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
 export interface GetUserResponse {
   userId: number;
   fullName: string;
   email: string;
   type: string;
   resetPassword: boolean;
+  token?: string;
 }
 
 export interface MessageResponse {
   message: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+  tempPassword: string;
 }

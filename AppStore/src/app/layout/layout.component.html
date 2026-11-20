@@ -1,5 +1,5 @@
 <mat-toolbar>
-  <span class="title">Mi Tienda</span>
+  <span class="title" routerLink="/" style="cursor: pointer;">Mi Tienda</span>
 
   <a mat-button routerLink="/home" routerLinkActive="active">Home</a>
 
@@ -17,18 +17,21 @@
   <span class="spacer"></span>
 
   <a mat-button routerLink="/cart" routerLinkActive="active">
-  <mat-icon
-    [matBadge]="cartService.totalItems()"
-    [matBadgeHidden]="cartService.totalItems() === 0"
-    matBadgeColor="warn">
-    shopping_cart
-  </mat-icon>
-  <span>Carrito</span>
-</a>
+    <mat-icon
+      [matBadge]="cartService.totalItems()"
+      [matBadgeHidden]="cartService.totalItems() === 0"
+      matBadgeColor="warn">
+      shopping_cart
+    </mat-icon>
+    <span>Carrito</span>
+  </a>
 
-<span class="user-name">{{ authService.user()?.fullName }}</span>
+  <button mat-button (click)="editProfile()" title="Editar mi perfil">
+    <mat-icon>account_circle</mat-icon>
+    <span class="user-name">{{ authService.user()?.fullName }}</span>
+  </button>
 
-  <button matIconButton aria-label="Logout" (click)="logout()">
+  <button matIconButton aria-label="Logout" (click)="logout()" title="Cerrar sesión">
     <mat-icon>logout</mat-icon>
   </button>
 </mat-toolbar>

@@ -1,7 +1,9 @@
-import { computed, Service, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { GetUserResponse } from '../interfaces/user-dtos';
 
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class AuthService {
 
   private readonly key = 'appstore_user';
@@ -9,15 +11,24 @@ export class AuthService {
   private _user = signal<GetUserResponse | null>(this.read());
 
   readonly user = this._user.asReadonly();
+  readonly token = computed(() => this._user()?.token ?? null);
   readonly isLoggedIn = computed(() => this._user() !== null);
   readonly isAdmin = computed(() => this._user()?.type === 'Admin');
 
-  // "Remember me" activo: localStorage (sobrevive al cerrar el navegador).
-  // Inactivo: sessionStorage (se pierde al cerrar la pestaña).
   login(user: GetUserResponse, remember: boolean): void {
     this.clearStorage();
     (remember ? localStorage : sessionStorage).setItem(this.key, JSON.stringify(user));
     this._user.set(user);
+  }
+
+  updateCurrentUser(updated: Partial<GetUserResponse>): void {
+    const current = this._user();
+    if (!current) return;
+
+    const merged: GetUserResponse = { ...current, ...updated };
+    const useLocal = localStorage.getItem(this.key) !== null;
+    (useLocal ? localStorage : sessionStorage).setItem(this.key, JSON.stringify(merged));
+    this._user.set(merged);
   }
 
   logout(): void {
